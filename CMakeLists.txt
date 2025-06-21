@@ -35,28 +35,28 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(ControleDeNivel ControleDeNivel.c )
+add_executable(${PROJECT_NAME} src/ControleDeNivel.c src/main.c )
 
-pico_set_program_name(ControleDeNivel "ControleDeNivel")
-pico_set_program_version(ControleDeNivel "0.1")
+pico_set_program_name(${PROJECT_NAME} "ControleDeNivel")
+pico_set_program_version(${PROJECT_NAME} "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(ControleDeNivel 0)
-pico_enable_stdio_usb(ControleDeNivel 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
+pico_enable_stdio_usb(${PROJECT_NAME} 1)
 
 # Add the standard library to the build
-target_link_libraries(ControleDeNivel
+target_link_libraries(${PROJECT_NAME}
         pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(ControleDeNivel PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/inc
 )
 
 # Add any user requested libraries
-target_link_libraries(ControleDeNivel 
+target_link_libraries(${PROJECT_NAME} 
         
         )
 
-pico_add_extra_outputs(ControleDeNivel)
+pico_add_extra_outputs(${PROJECT_NAME})
 
