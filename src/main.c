@@ -4,10 +4,11 @@
 int main()
 {
     ini_echo();
+    init_bomba();
 
     while (true) 
     {
-        calcular_distancia();
+        controle_bomba();
     }
 
     return 0;

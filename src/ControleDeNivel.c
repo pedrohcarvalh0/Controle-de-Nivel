@@ -1,9 +1,21 @@
 #include "ControleDeNivel.h"
 
+
+
+/********************* Variáveis Globais **************************/
+
+float altura_maxima = 80.00, altura_minima = 20.00; //Variáveis altura máxima e minima em percentual
+
+float altura_recipiente = 20; //Define a altura do recipiente como 20 cm
+
+bool led_g_flag = 0, led_r_flag = 0;
+
+/****************** Implementação das Funções *********************/
+
 void ini_echo()
 {
     stdio_init_all(); // inicializa USB serial (para printf)
-    
+
     gpio_init(TRIG_PIN);
     gpio_set_dir(TRIG_PIN, GPIO_OUT);
 
@@ -11,7 +23,25 @@ void ini_echo()
     gpio_set_dir(ECHO_PIN, GPIO_IN);
 }
 
-void calcular_distancia()
+void init_bomba()
+{
+    gpio_init(ACI_BOMBA);
+    gpio_set_dir(ACI_BOMBA, GPIO_OUT);
+
+    gpio_init(led_g);
+    gpio_set_dir(led_g, GPIO_OUT);
+
+    gpio_init(led_r);
+    gpio_set_dir(led_r, GPIO_OUT);
+
+    gpio_put(led_r, 1);
+    gpio_put(led_g, 1);
+    gpio_put(ACI_BOMBA, 0);
+
+    sleep_ms(1000);
+}
+
+float calcular_distancia()
 {
     gpio_put(TRIG_PIN, 0); // Garante trigger baixo
     sleep_us(2);
@@ -40,13 +70,48 @@ void calcular_distancia()
     uint32_t pulse = t1 - t0;                  // duração em µ
     float distance_cm = pulse / 58.0f;         // conversão para cm
 
-    if (pulse == 0 || pulse > 30000) 
+    return distance_cm;
+}
+
+bool controle_bomba()
+{
+    float altura_liquido = 0; bool controle_bomba = 0; uint amostras = 100;
+
+    for(int i = 0; i<amostras; i++)
     {
-        printf("Fora de alcance\n");
-    } 
-    else 
-    {
-        printf("Distância: %.2f cm\n", distance_cm);
+        altura_liquido = altura_liquido + calcular_distancia();
+        sleep_ms(10);
     }
-    sleep_ms(500);
+    
+    altura_liquido = altura_liquido/amostras;
+
+    printf("altura liquido %0.2f\n", altura_liquido);
+
+    if(altura_liquido <= (altura_minima/100)*altura_recipiente) //Desliga
+    {
+        led_g_flag  = 1;
+        led_r_flag = !led_g_flag;
+
+        controle_bomba = 1;
+        gpio_put(ACI_BOMBA, controle_bomba);
+        
+        printf("Bomba Desligada\n");
+        sleep_ms(1000);
+    }
+    else if(altura_liquido >= (altura_maxima/100)*altura_recipiente) //Liga
+    {
+        led_g_flag  = 0;
+        led_r_flag = !led_g_flag;
+
+        controle_bomba = 0;
+        gpio_put(ACI_BOMBA, controle_bomba);
+        
+        printf("Bomba Acionada\n");
+        sleep_ms(1000);
+    }
+
+    gpio_put(led_g, led_g_flag);
+    gpio_put(led_r, led_r_flag);
+
+    return controle_bomba;
 }

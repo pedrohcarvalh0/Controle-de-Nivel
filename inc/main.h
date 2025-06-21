@@ -16,8 +16,6 @@
 
 /***************  Defines e Variaveis Globais ****************/
 
-#define BUTTON_B 6
-
 /****************** Prototipo de Funções *********************/
 
  #endif //MAIN_H
