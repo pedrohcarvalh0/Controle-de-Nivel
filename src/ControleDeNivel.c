@@ -22,46 +22,63 @@ double emote[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.1, 0.0, 0.0, 0.0, 0.
 float nivel_atual_percent = 0.0;    // Nível atual em porcentagem
 bool bomba_status = false;          // Status da bomba
 
-// HTML OTTIMIZADO para controle de nível de líquido
+// HTML CORRIGIDO - não sobrescreve inputs quando usuário está editando
 const char HTML_BODY[] =
     "<!DOCTYPE html>"
-    "<html><head><meta charset='UTF-8'><title>Controle de Nível</title>"
+    "<html><head><meta charset='UTF-8'><title>Controle de Nivel</title>"
     "<style>"
-    "body{font-family:sans-serif;text-align:center;margin:0;padding:10px;background:#f0f0f0;color:#333;}"
-    ".container{max-width:600px;margin:20px auto;background:#fff;padding:15px;border:1px solid #ccc;}"
-    "h1{font-size:1.8em;margin-bottom:10px;}"
-    ".status{margin:10px 0;}"
-    "#nivel_atual{font-size:2em;color:#007bff;}"
-    ".nivel-visual{width:100%;height:150px;background:#ddd;position:relative;margin:10px 0;border:1px solid #bbb;}"
-    ".agua{position:absolute;bottom:0;width:100%;background:#007bff;transition:height 0.3s;}"
-    ".config{margin:10px 0;}"
-    "input{width:60px;padding:5px;margin:0 5px;}"
-    "button{padding:8px 15px;margin:5px;cursor:pointer;}"
+    "body{font-family:Arial;text-align:center;margin:10px;background:#f5f5f5;}"
+    ".box{max-width:500px;margin:0 auto;background:#fff;padding:20px;border:1px solid #ddd;}"
+    "h1{color:#333;margin-bottom:20px;}"
+    ".info{margin:15px 0;font-size:18px;}"
+    "#nivel{font-size:24px;color:#007bff;font-weight:bold;}"
+    "#bomba{font-size:18px;padding:5px 10px;border-radius:15px;}"
+    ".on{background:#28a745;color:#fff;}"
+    ".off{background:#dc3545;color:#fff;}"
+    ".visual{width:100%;height:120px;background:#eee;border:2px solid #ccc;position:relative;margin:15px 0;}"
+    ".agua{position:absolute;bottom:0;width:100%;background:#007bff;}"
+    ".config{margin:20px 0;padding:15px;background:#f8f8f8;border:1px solid #ddd;}"
+    "input{width:50px;padding:5px;margin:0 5px;text-align:center;}"
+    "button{padding:10px 20px;margin:10px;background:#007bff;color:#fff;border:none;cursor:pointer;}"
     "</style>"
+    "</head><body>"
+    "<div class='box'>"
+    "<h1>Controle de Nivel</h1>"
+    "<div class='info'>Nivel: <span id='nivel'>--%</span></div>"
+    "<div class='visual'><div id='agua' class='agua'></div></div>"
+    "<div class='info'>Bomba: <span id='bomba' class='off'>DESLIGADA</span></div>"
+    "<div class='config'>"
+    "<div>Min: <input type='number' id='min' value='20' min='0' max='100'>%</div><br>"
+    "<div>Max: <input type='number' id='max' value='80' min='0' max='100'>%</div><br>"
+    "<button onclick='salvar()'>Salvar</button>"
+    "</div>"
+    "<div style='margin-top:20px;font-size:12px;color:#666;'>"
+    "Atual: Min=<span id='min_atual'>20</span>% Max=<span id='max_atual'>80</span>%"
+    "</div>"
+    "</div>"
     "<script>"
-    "let nivel=0,min=20,max=80,on=false;"
-    "function updateUI(){ document.getElementById('nivel_atual').innerText = nivel.toFixed(1) + '%';"
-    " document.getElementById('agua').style.height = nivel + '%';"
-    " document.getElementById('min_disp').innerText = min + '%';"
-    " document.getElementById('max_disp').innerText = max + '%';"
-    " document.getElementById('bomba').innerText = on ? 'LIGADA':'DESLIGADA'; }"
-    "function fetchData(){ fetch('/estado').then(r=>r.json()).then(d=>{ nivel=d.nivel_atual; on=d.bomba_ligada; min=d.altura_minima; max=d.altura_maxima; document.getElementById('min_val').value=min; document.getElementById('max_val').value=max; updateUI(); }); }"
-    "function saveConfig(){ let nv=+document.getElementById('min_val').value; let xv=+document.getElementById('max_val').value;"
-    " if(nv < xv){ fetch('/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({altura_minima:nv,altura_maxima:xv})})"
-    " .then(res=>res.json()).then(d=>{ if(d.success){min=nv;max=xv;updateUI();alert('Salvo!');} }); }else alert('Min < Max'); }"
-    "setInterval(fetchData,2000); window.onload = fetchData;"
-    "</script></head>"
-    "<body><div class='container'>"
-    "<h1>Controle de Nível</h1>"
-    "<div class='status'><strong>Nível Atual:</strong> <span id='nivel_atual'>--%</span></div>"
-    "<div class='nivel-visual'><div id='agua' class='agua'></div></div>"
-    "<div class='status'><strong>Bomba:</strong> <span id='bomba'>--</span></div>"
-    "<div class='config'><label>Min: <span id='min_disp'>20%</span></label>"
-    "<input type='number' id='min_val' min='0' max='100'>"
-    "<label>Max: <span id='max_disp'>80%</span></label>"
-    "<input type='number' id='max_val' min='0' max='100'></div>"
-    "<button onclick='saveConfig()'>Salvar</button>"
-    "</div></body></html>";
+    "function atualizar(){"
+    "fetch('/estado').then(r=>r.json()).then(d=>{"
+    "document.getElementById('nivel').innerText=d.nivel_atual.toFixed(1)+'%';"
+    "document.getElementById('agua').style.height=d.nivel_atual+'%';"
+    "var bomba=document.getElementById('bomba');"
+    "if(d.bomba_ligada){bomba.innerText='LIGADA';bomba.className='on';}else{bomba.innerText='DESLIGADA';bomba.className='off';}"
+    "document.getElementById('min_atual').innerText=d.altura_minima;"
+    "document.getElementById('max_atual').innerText=d.altura_maxima;"
+    "}).catch(e=>console.log('Erro:',e));"
+    "}"
+    "function salvar(){"
+    "var min=document.getElementById('min').value;"
+    "var max=document.getElementById('max').value;"
+    "if(min&&max&&parseFloat(min)<parseFloat(max)){"
+    "fetch('/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({altura_minima:parseFloat(min),altura_maxima:parseFloat(max)})})"
+    ".then(r=>r.json()).then(d=>{if(d.success){alert('Configuracao salva!');atualizar();}}).catch(e=>alert('Erro ao salvar'));"
+    "}else{alert('Valores invalidos! Min deve ser menor que Max');}"
+    "}"
+    "setInterval(atualizar,3000);"
+    "setTimeout(atualizar,1000);"
+    "</script>"
+    "</body></html>";
 
 /****************** Implementação das Funções *********************/
 
@@ -114,7 +131,6 @@ float calcular_distancia()
 
     uint32_t t0 = time_us_32();
 
-    // Espera echo cair
     while (gpio_get(ECHO_PIN) == 1) 
     {
         if (time_us_32() - t0 > 30000) break; // timeout ~30 ms
@@ -126,9 +142,11 @@ float calcular_distancia()
     return distance_cm;
 }
 
+// FUNÇÃO AJUSTADA - agora usa as variáveis configuráveis
 bool controle_bomba()
 {
-    float altura_liquido = 0; uint amostras = 100;
+    float altura_liquido = 0; 
+    uint amostras = 100;
 
     for(int i = 0; i<amostras; i++)
     {
@@ -140,36 +158,38 @@ bool controle_bomba()
 
     atualizar_nivel_percent(altura_liquido);
 
-    printf("altura liquido %0.2f\n", altura_liquido);
+    printf("Altura liquido: %.2f cm (%.1f%%) - Limites: Min=%.1f%% Max=%.1f%%\n", 
+           altura_liquido, nivel_atual_percent, altura_minima, altura_maxima);
 
-    if(nivel_atual_percent >= 80.00) //Desliga
+    // AJUSTADO: Agora usa as variáveis configuráveis altura_minima e altura_maxima
+    if(nivel_atual_percent >= altura_maxima) // Nível alto - Desliga bomba
     {
         led_g_flag  = 1;
         led_r_flag = !led_g_flag;
 
-        bomba_status = 0;
-        gpio_put(ACI_BOMBA, !bomba_status);
+        bomba_status = false;
+        gpio_put(ACI_BOMBA, 0); // Desliga bomba
         
         desenho_pio_green(v, VALOR_LED, pio, sm, R, G, B);
-        printf("Bomba Desligada\n");
+        printf("Bomba DESLIGADA (nível alto: %.1f%% >= %.1f%%)\n", nivel_atual_percent, altura_maxima);
         sleep_ms(1000);
     }
-    else if(nivel_atual_percent <= 20.00) //Liga
+    else if(nivel_atual_percent <= altura_minima) // Nível baixo - Liga bomba
     {
         led_g_flag  = 0;
         led_r_flag = !led_g_flag;
 
-        bomba_status = 1;
-        gpio_put(ACI_BOMBA, !bomba_status);
+        bomba_status = true;
+        gpio_put(ACI_BOMBA, 1); // Liga bomba
         desenho_pio_red(emote, VALOR_LED, pio, sm, R, G, B);
-        printf("Bomba Acionada\n");
+        printf("Bomba LIGADA (nível baixo: %.1f%% <= %.1f%%)\n", nivel_atual_percent, altura_minima);
         sleep_ms(1000);
     }
 
     gpio_put(led_g, led_g_flag);
     gpio_put(led_r, led_r_flag);
 
-    return controle_bomba;
+    return bomba_status;
 }
 
 void set_matrix () {
@@ -235,7 +255,7 @@ void init_wifi()
     cyw43_arch_enable_sta_mode();
     
     printf("Conectando ao Wi-Fi...\n");
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASS, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
+    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
         printf("Falha ao conectar ao Wi-Fi\n");
         return;
     }
@@ -254,20 +274,22 @@ void parse_json_config(const char* json_data)
     if (min_pos) {
         min_pos += 15;
         float new_min = atof(min_pos);
-        if (new_min >= 0 && new_min <= 100) {
+        if (new_min >= 0 && new_min <= 100 && new_min < altura_maxima) {
             altura_minima = new_min;
+            printf("Altura mínima atualizada para: %.1f%%\n", altura_minima);
         }
     }
     
     if (max_pos) {
         max_pos += 15;
         float new_max = atof(max_pos);
-        if (new_max >= 0 && new_max <= 100) {
+        if (new_max >= 0 && new_max <= 100 && new_max > altura_minima) {
             altura_maxima = new_max;
+            printf("Altura máxima atualizada para: %.1f%%\n", altura_maxima);
         }
     }
     
-    printf("Nova configuração - Min: %.1f%%, Max: %.1f%%\n", altura_minima, altura_maxima);
+    printf("Configuração atual - Min: %.1f%%, Max: %.1f%%\n", altura_minima, altura_maxima);
 }
 
 static err_t http_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
