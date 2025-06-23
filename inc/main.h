@@ -13,6 +13,7 @@
 #include "pico/bootrom.h"
 
 #include "ControleDeNivel.h"
+#include "FeedbackVisual.h"
 
 /***************  Defines e Variaveis Globais ****************/
 

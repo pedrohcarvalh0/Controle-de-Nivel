@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(${PROJECT_NAME} src/ControleDeNivel.c src/main.c )
+add_executable(${PROJECT_NAME} src/ssd1306.c src/FeedbackVisual.c src/ControleDeNivel.c src/main.c)
 
 pico_set_program_name(${PROJECT_NAME} "ControleDeNivel")
 pico_set_program_version(${PROJECT_NAME} "0.1")
@@ -49,7 +49,9 @@ target_link_libraries(${PROJECT_NAME}
         pico_stdlib
         hardware_clocks
         hardware_pio
-        pico_cyw43_arch_lwip_threadsafe_background)
+        pico_cyw43_arch_lwip_threadsafe_background
+        hardware_i2c)
+
     
 pico_generate_pio_header(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/pio_matrix.pio)
 

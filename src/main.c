@@ -7,6 +7,9 @@ int main()
     init_bomba();
     set_matrix();
 
+    init_display();
+    init_button();
+
     sleep_ms(5000);
     
     // Inicializar Wi-Fi e servidor HTTP
@@ -24,6 +27,8 @@ int main()
         
         // Executar controle da bomba
         controle_bomba();
+
+        controle_display();
         
         // Pequeno delay para não sobrecarregar o sistema
         sleep_ms(100);
