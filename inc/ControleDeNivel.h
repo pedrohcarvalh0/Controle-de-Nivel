@@ -1,5 +1,5 @@
 /***
- * @brief Arquivo de cabel
+ * @brief Arquivo de cabeçalho do Controle de nível
  */
 
  #ifndef CONTROLE_DE_NIVEL_H
