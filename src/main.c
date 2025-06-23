@@ -28,6 +28,7 @@ int main()
         // Executar controle da bomba
         controle_bomba();
 
+        // Executar controle do display
         controle_display();
         
         // Pequeno delay para não sobrecarregar o sistema

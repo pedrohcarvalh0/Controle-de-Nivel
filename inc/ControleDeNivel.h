@@ -36,6 +36,8 @@ extern unsigned char R, G, B;
 
 extern float nivel_atual_percent;
 extern bool bomba_status;
+extern char str_ip[24];
+extern char str_status_wifi[10];
 
 // Estrutura para estado HTTP
 struct http_state {

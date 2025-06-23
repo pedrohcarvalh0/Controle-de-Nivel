@@ -1,6 +1,5 @@
 #include "ControleDeNivel.h"
-
-
+#include "FeedbackVisual.h"
 
 /********************* Variáveis Globais **************************/
 
@@ -21,6 +20,8 @@ double emote[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.1, 0.0, 0.0, 0.0, 0.
 
 float nivel_atual_percent = 0.0;    // Nível atual em porcentagem
 bool bomba_status = false;          // Status da bomba
+char str_ip[24];
+char str_status_wifi[10];
 
 // HTML CORRIGIDO - não sobrescreve inputs quando usuário está editando
 const char HTML_BODY[] =
@@ -246,24 +247,36 @@ void atualizar_nivel_percent(float distancia)
 void init_wifi()
 {
     printf("Iniciando Wi-Fi...\n");
+    sprintf(str_status_wifi, "Iniciando");
+    controle_display();
     
     if (cyw43_arch_init()) {
         printf("Falha ao inicializar Wi-Fi\n");
+        sprintf(str_status_wifi, "Falha!");
+        controle_display();
         return;
     }
 
     cyw43_arch_enable_sta_mode();
     
     printf("Conectando ao Wi-Fi...\n");
+    sprintf(str_status_wifi, "Conectando");
+    controle_display();
+
     if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
         printf("Falha ao conectar ao Wi-Fi\n");
+        sprintf(str_status_wifi, "Falha!");
+        controle_display();
         return;
     }
 
     printf("Wi-Fi conectado!\n");
+    sprintf(str_status_wifi, "Conectado!");
+    controle_display();
     
     uint8_t *ip = (uint8_t *)&(cyw43_state.netif[0].ip_addr.addr);
     printf("IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+    snprintf(str_ip, sizeof(str_ip), "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 }
 
 void parse_json_config(const char* json_data)
