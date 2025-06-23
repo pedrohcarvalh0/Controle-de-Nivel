@@ -10,6 +10,15 @@ float altura_recipiente = 20; //Define a altura do recipiente como 20 cm
 
 bool led_g_flag = 0, led_r_flag = 0;
 
+PIO pio;
+uint sm;
+uint32_t VALOR_LED;
+unsigned char R, G, B;
+
+double v[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.1, 0.0, 0.1, 0.0, 0.0, 0.0};
+double apaga[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+double emote[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+
 /****************** Implementação das Funções *********************/
 
 void ini_echo()
@@ -95,6 +104,7 @@ bool controle_bomba()
         controle_bomba = 1;
         gpio_put(ACI_BOMBA, controle_bomba);
         
+        desenho_pio_green(v, VALOR_LED, pio, sm, R, G, B);
         printf("Bomba Desligada\n");
         sleep_ms(1000);
     }
@@ -105,7 +115,7 @@ bool controle_bomba()
 
         controle_bomba = 0;
         gpio_put(ACI_BOMBA, controle_bomba);
-        
+        desenho_pio_red(emote, VALOR_LED, pio, sm, R, G, B);
         printf("Bomba Acionada\n");
         sleep_ms(1000);
     }
@@ -115,3 +125,45 @@ bool controle_bomba()
 
     return controle_bomba;
 }
+
+void set_matrix () {
+
+    // Setando matriz de leds
+   double r = 0.0, b = 0.0 , g = 0.0;
+   bool ok;
+   ok = set_sys_clock_khz(128000, false);
+   pio = pio0;
+
+   uint offset = pio_add_program(pio, &main_program);
+   uint sm = pio_claim_unused_sm(pio, true);
+   main_program_init(pio, sm, offset, OUT_PIN);
+}
+
+//rotina para definição da intensidade de cores do led
+uint32_t matrix_rgb(double b, double r, double g)
+{
+  //unsigned char R, G, B;
+  R = r * 255;
+  G = g * 255;
+  B = b * 255;
+  return (G << 24) | (R << 16) | (B << 8);
+}
+
+// Desenha na matriz de leds em verde
+void desenho_pio_green(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r, double g, double b){
+
+    for (int16_t i = 0; i < NUM_PIXELS; i++) {
+            valor_led = matrix_rgb(b = 0.0, r=0.0, desenho[24-i]);
+            pio_sm_put_blocking(pio, sm, valor_led);
+    }
+}
+
+// Desenha na matriz de leds em vermelho
+void desenho_pio_red(double *desenho, uint32_t valor_led, PIO pio, uint sm, double r, double g, double b){
+
+    for (int16_t i = 0; i < NUM_PIXELS; i++) {
+            valor_led = matrix_rgb(b = 0.0, desenho[24-i], g = 0.0);
+            pio_sm_put_blocking(pio, sm, valor_led);
+    }
+}
+

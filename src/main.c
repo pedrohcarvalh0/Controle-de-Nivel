@@ -5,7 +5,8 @@ int main()
 {
     ini_echo();
     init_bomba();
-
+    set_matrix();
+    
     while (true) 
     {
         controle_bomba();
