@@ -96,6 +96,7 @@ void ini_echo()
 
 void init_bomba()
 {
+    som_buz(1000, 200);
     gpio_init(ACI_BOMBA);
     gpio_set_dir(ACI_BOMBA, GPIO_OUT);
 
@@ -242,6 +243,25 @@ void atualizar_nivel_percent(float distancia)
     if (nivel_atual_percent > 100) nivel_atual_percent = 100;
 }
 
+//Som Buzzer
+void som_buz(uint16_t freq, uint16_t duration_ms)
+{
+    uint period = 1000000 / freq;  // Período do sinal em microssegundos
+    uint cycles = (duration_ms * 1000) / period;  // Número de ciclos a gerar
+
+    //Configuração do Buzzer A
+    gpio_init(21);
+    gpio_set_dir(21, GPIO_OUT);
+
+    for (uint i = 0; i < cycles; i++) 
+    {
+        gpio_put(21, 1);  // Liga o buzzer
+        sleep_us(period / 2);  // Espera metade do período
+        gpio_put(21, 0);  // Desliga o buzzer
+        sleep_us(period / 2);  // Espera metade do período
+    }
+
+}
 
 // Funções do servidor HTTP
 void init_wifi()

@@ -70,4 +70,7 @@ void parse_json_config(const char* json_data);
 // Função para atualizar nível em porcentagem
 void atualizar_nivel_percent(float distancia);
 
+//Buzzer
+void som_buz(uint16_t freq, uint16_t duration_ms);
+
 #endif // CONTROLE_DE_NIVEL_H
