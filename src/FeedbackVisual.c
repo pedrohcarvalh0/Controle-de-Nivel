@@ -113,14 +113,14 @@ void controle_display(){
 
     }else{
         // TELA 2 - Secundária
-        ssd1306_rect(&ssd, 2, 100, 10, 59, true, false); // Borda
+        ssd1306_rect(&ssd, 2, 95, 20, 59, true, false); // Borda
         float y = (61 - (nivel_atual_percent*0.59));
-        ssd1306_rect(&ssd, y, 100, 10, (61 - y), true, true); // Preenchimento
+        ssd1306_rect(&ssd, y, 95, 20, (61 - y), true, true); // Preenchimento
 
         float y_max = (61 - (altura_maxima*0.59));
         float y_min = (61 - (altura_minima*0.59));
-        ssd1306_line(&ssd, 99, y_max, 110, y_max, true); // Desenha uma linha horizontal (altura máxima)
-        ssd1306_line(&ssd, 99, y_min, 110, y_min, true); // Desenha uma linha horizontal (altura mínima)
+        ssd1306_line(&ssd, 94, y_max, 115, y_max, true); // Desenha uma linha horizontal (altura máxima)
+        ssd1306_line(&ssd, 94, y_min, 115, y_min, true); // Desenha uma linha horizontal (altura mínima)
 
         ssd1306_draw_string(&ssd, "Nivel:", 4, 5); // Desenha uma string
         ssd1306_draw_string(&ssd, str_nivel_atual_percent, 52, 5); // Desenha uma string
